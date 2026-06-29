@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+title: "ImmunoScore: a cross-cancer CD8 T-cell signature for anti-PD-1 response"
+message: "If you use this work, please cite it."
+type: software
+authors:
+  - given-names: "Kalixte"
+    family-names: "Petrof"
+date-released: 2026-06-22
+license: MIT
+abstract: >
+  A CD8 T-cell gene signature scored against single-cell tumor data to estimate
+  anti-PD-1 immunotherapy response. The signature was built on melanoma
+  (Sade-Feldman et al., Cell 2018) and tested on basal cell carcinoma
+  (Yost et al., Nature Medicine 2019). Patient-level cross-cancer AUC 0.77
+  (n=11; hypothesis-generating). Research and education use only.
+keywords:
+  - bioinformatics
+  - single-cell RNA-seq
+  - immunotherapy
+  - tumor microenvironment
