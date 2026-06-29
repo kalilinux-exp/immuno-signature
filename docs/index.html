@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" href="data:," />
+<title>ImmunoScore — reading immune cells to predict immunotherapy response</title>
+<meta name="description" content="A CD8 T-cell signature built on melanoma and tested on basal cell carcinoma, a cancer it had never seen. A high-school computational biology project by Kalixte Petrof." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" /></noscript>
+<style>
+  :root{
+    --paper:#fbfaf7; --ink:#1b1a16; --muted:#5d5b53; --faint:#8a877d;
+    --line:#e6e3d9; --accent:#0e6b57;
+    --serif:"Newsreader",Georgia,"Times New Roman",serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--serif); font-size:19px; line-height:1.62; font-weight:400;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent); text-underline-offset:3px; text-decoration-thickness:1px}
+  a:hover{text-decoration-color:var(--ink)}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+  .mono{font-family:var(--mono); font-variant-numeric:tabular-nums}
+
+  /* two-column shell: sticky rail + reading column */
+  .shell{max-width:1060px; margin:0 auto; padding:0 28px}
+  @media (min-width:900px){
+    .shell{display:grid; grid-template-columns:208px minmax(0,42rem); gap:64px;
+      align-items:start; padding-top:18px}
+  }
+
+  /* left rail */
+  .rail{padding-top:40px}
+  @media (min-width:900px){ .rail-inner{position:sticky; top:40px} }
+  .rail .name{font-family:var(--mono); font-size:14px; letter-spacing:.02em; color:var(--ink); font-weight:500}
+  .rail .who{font-family:var(--mono); font-size:12.5px; color:var(--faint); margin-top:12px; line-height:1.7}
+  .toc{margin:26px 0; display:flex; flex-direction:column; gap:9px}
+  .toc a{font-family:var(--mono); font-size:12.5px; color:var(--muted); text-decoration:none}
+  .toc a:hover{color:var(--ink)}
+  .rail .ext{font-family:var(--mono); font-size:12.5px; display:flex; gap:16px}
+  .rail .ext a{color:var(--accent)}
+  @media (max-width:899px){
+    .rail{padding:26px 0 8px; border-bottom:1px solid var(--line); margin-bottom:8px}
+    .toc{display:none}
+    .rail .who{display:inline-block; margin-right:18px}
+    .rail .ext{display:inline-flex}
+  }
+
+  /* article */
+  .article{padding:40px 0 8px}
+  h1{font-size:clamp(2rem,4.6vw,2.9rem); font-weight:500; line-height:1.08;
+    letter-spacing:-.018em; margin:0 0 .35em}
+  .dek{font-size:clamp(1.08rem,2.2vw,1.32rem); color:var(--muted); font-style:italic;
+    margin:0 0 1.6em; padding-bottom:1.6em; border-bottom:1px solid var(--line)}
+  .article p{margin:1.2em 0}
+  .lead{font-size:1.05em}
+  h2{font-size:1.4rem; font-weight:500; letter-spacing:-.01em; line-height:1.2;
+    margin:2.4em 0 .2em; padding-top:1.7em; border-top:1px solid var(--line)}
+  ol{margin:1.1em 0; padding-left:1.3em}
+  ol li{margin:.55em 0; padding-left:.3em}
+  strong, ol li b{font-weight:500}
+  .pull{font-variant-numeric:tabular-nums; font-weight:500}
+
+  figure{margin:2em 0}
+  figure img{width:100%; height:auto; display:block; border:1px solid var(--line); border-radius:4px}
+  figcaption{font-family:var(--mono); font-size:12px; color:var(--faint); margin-top:10px; line-height:1.5}
+
+  .genes{font-family:var(--mono); font-size:13.5px; line-height:2; color:var(--muted); margin:.6em 0}
+  .genes b{color:var(--accent); font-weight:500}
+
+  footer{border-top:1px solid var(--line); margin-top:2.4em}
+  .footin{max-width:1060px; margin:0 auto; padding:28px 28px 64px;
+    font-family:var(--mono); font-size:12.5px; color:var(--faint); line-height:1.7}
+  footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <aside class="rail">
+    <div class="rail-inner">
+      <div class="name">ImmunoScore</div>
+      <div class="who">Kalixte Petrof<br>2026</div>
+      <nav class="toc" aria-label="Contents">
+        <a href="#finding">The finding</a>
+        <a href="#code">What the code does</a>
+        <a href="#signature">The signature</a>
+        <a href="#trust">What I don't trust yet</a>
+      </nav>
+      <div class="ext"><a href="https://github.com/kalilinux-exp/immuno-signature">Code</a><a href="http://tisch.comp-genomics.org">Data</a></div>
+    </div>
+  </aside>
+
+  <main class="article">
+    <h1>Reading immune cells to predict immunotherapy response</h1>
+    <p class="dek">A CD8 T-cell signature built on melanoma, then tested on a cancer it had never seen.</p>
+
+    <p class="lead" id="finding">Checkpoint immunotherapy takes the brakes off the immune system so it
+      can attack a tumor. It works well for some patients and does almost nothing for most, and
+      doctors cannot reliably tell the two groups apart before treatment starts. I wanted to see how
+      far I could get on that question with public data and a laptop.</p>
+
+    <p>I started from published single-cell data on melanoma patients followed through anti-PD-1
+      treatment. Inside their CD8 T cells, the killer cells the drug is meant to unleash, I looked
+      for the genes that were more active in the people who later responded. That set of genes became
+      the signature.</p>
+
+    <p>Then the test that actually matters. I took the melanoma signature and scored it on a
+      completely different cancer, basal cell carcinoma, that it had never been trained on. It still
+      ranked responders above non-responders, at a patient-level <span class="pull">AUC of 0.77</span>.</p>
+
+    <figure>
+      <img src="img/roc_validation.png" alt="ROC curve showing the melanoma-trained signature applied to basal cell carcinoma, area under the curve 0.77." />
+      <figcaption>The melanoma signature applied to basal cell carcinoma. The diagonal is chance.</figcaption>
+    </figure>
+
+    <h2 id="code">What the code does</h2>
+    <p>The repository is four short scripts, run in order:</p>
+    <ol>
+      <li><b>Discover.</b> Find the genes that separate responders from non-responders in melanoma CD8 T cells.</li>
+      <li><b>Clean.</b> Drop ribosomal, mitochondrial, and stress genes that fake a signal.</li>
+      <li><b>Validate.</b> Score the basal cell carcinoma cohort and measure the separation.</li>
+      <li><b>Stress-test.</b> Put a confidence interval and a permutation test on the number.</li>
+    </ol>
+    <p>Anyone can clone the repo, download the same public data, and reproduce every number on this page.</p>
+
+    <h2 id="signature">The signature</h2>
+    <p>Fifty genes, led by a stem-like memory program in CD8 T cells. These were already tied to
+      checkpoint response in the literature, so recovering them from raw data told me the method was
+      sound. The new part was watching them carry over to a second cancer.</p>
+    <p class="genes"><b>TCF7</b> <b>CCR7</b> <b>IL7R</b> <b>CD28</b> <b>SELL</b> LAT CD44 CD69 STAT4
+      DGKA PTK2B DEF6 GPR183 FOXP1 CLEC2D NLRC5 JAML LTB IL16 ARHGAP15 and 30 more.</p>
+
+    <h2 id="trust">What I don't trust yet</h2>
+    <p>The validation set had eleven patients. That is small, and the statistics say so plainly. The
+      95% confidence interval runs from <span class="pull">0.40 to 1.00</span> and the permutation
+      p-value is <span class="pull">0.08</span>, above the usual 0.05 line. So I read this as a lead
+      worth chasing, not a result to stand on.</p>
+
+    <figure>
+      <img src="img/permutation_null.png" alt="Histogram of AUC values from shuffled labels, with the observed value marked to the right of the random distribution." />
+      <figcaption>Shuffling the labels 10,000 times. The observed score sits at the right edge of chance, not clearly past it.</figcaption>
+    </figure>
+
+    <p>Two more honest caveats. The work is a reanalysis of public datasets, not new patient data,
+      and the two cohorts come from different labs, so technical differences between them could be part
+      of what I am seeing. None of this touches patient care. The next step is pooling more public
+      cohorts to push the patient count up and see whether the signal holds.</p>
+  </main>
+</div>
+
+<footer>
+  <div class="footin">
+    Data: Sade-Feldman et al., Cell, 2018 (melanoma) and Yost et al., Nature Medicine, 2019
+    (basal cell carcinoma), via TISCH2.<br />
+    MIT licensed. Copyright 2026 Kalixte Petrof. <a href="https://github.com/kalilinux-exp/immuno-signature">Repository</a>.
+  </div>
+</footer>
+
+</body>
+</html>

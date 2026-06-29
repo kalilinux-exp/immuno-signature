@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Large data (download from TISCH2 — see README)
+data/
+*.h5
+*.h5ad
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Private notes (not for the public repo)
+NOTES_FOR_ME.md
